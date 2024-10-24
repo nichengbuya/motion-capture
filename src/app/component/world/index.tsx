@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import ThreeManager from '../../../lib/word';
 import loadFBXModel from '@/lib/loader';
 import { useObject3D } from '@/contexts/object3DContext';
-import { SkeletonHelper } from 'three';
+import { Bone, Skeleton, SkeletonHelper, SkinnedMesh, Vector3 } from 'three';
 import './index.css'
 const ThreeScene: React.FC = () => {
     const { setObject3D } = useObject3D();
@@ -11,9 +11,32 @@ const ThreeScene: React.FC = () => {
         const object = await loadFBXModel('/models/fbx/mixamo.fbx');
         const world = ThreeManager.getInstance();
         world.scene.add(object);
-        world.transformControls.attach(object);
         const skeletonHelper = new SkeletonHelper(object);
         world.scene.add(skeletonHelper);
+        const effectors = [
+            'mixamorigRightHand',
+            'mixamorigLeftHand',
+            'mixamorigRightFoot',
+            'mixamorigLeftFoot'
+        ]
+    
+        const rootBone = object.children[0];
+        const skinnedMesh = object.children[1] as SkinnedMesh;
+        const bones: Bone[] = [...skinnedMesh.skeleton.bones.slice()];
+        for(const e of effectors.reverse()){
+            const bone = new Bone();
+            bone.name = `${e}_target`;
+            const origin = skinnedMesh.skeleton.getBoneByName(e);
+            const position = new Vector3();
+            origin?.getWorldPosition(position);
+            bone.position.copy(position);
+            world.scene.add(bone);
+            rootBone.attach(bone);
+            bones.push(bone);
+        }
+        
+        const skeleton = new Skeleton(bones);
+        skinnedMesh.bind(skeleton);
         setObject3D(object);
     }
 
@@ -30,7 +53,7 @@ const ThreeScene: React.FC = () => {
         // Clean up on unmount
         return () => {
             if (container) {
-                threeManager.unmountRenderer(container);
+                threeManager.dispose();
             }
         };
     }, []);

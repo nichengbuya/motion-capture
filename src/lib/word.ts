@@ -96,7 +96,7 @@ class ThreeManager {
     this.container = null;
   }
 
-  private onWindowResize = () => {
+  public onWindowResize = () => {
     if (this.container) {
       const width = this.container.clientWidth;
       const height = this.container.clientHeight;
@@ -114,6 +114,36 @@ class ThreeManager {
       func();
     }
     this.renderer.render(this.scene, this.camera);
+  }
+
+  public dispose(): void {
+    // Remove event listeners
+    window.removeEventListener('resize', this.onWindowResize);
+    
+    // Dispose the TransformControls
+    this.transformControls.dispose();
+    
+    // Dispose all objects in the scene
+    this.scene.traverse((object) => {
+      if (object instanceof THREE.Mesh) {
+        if (object.geometry) object.geometry.dispose();
+        if (object.material) {
+          if (Array.isArray(object.material)) {
+            object.material.forEach((material) => material.dispose());
+          } else {
+            object.material.dispose();
+          }
+        }
+      }
+    });
+    
+    // Dispose the renderer
+    this.renderer.dispose();
+    
+    // If the renderer is mounted to the DOM, unmount it
+    if (this.container) {
+      this.unmountRenderer(this.container);
+    }
   }
 }
 

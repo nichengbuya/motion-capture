@@ -5,6 +5,8 @@ import Video from './component/video';
 import World from './component/world';
 import Tabs from './component/tab';
 import ControlPanel from './component/control-panel';
+import ThreeManager from '@/lib/word';
+
 
 export default function Home() {
   const [leftWidth, setLeftWidth] = useState(50);
@@ -19,6 +21,7 @@ export default function Home() {
     const onMouseMove = (e: { clientX: number; }) => {
       const newWidth = Math.max(0, startWidth + e.clientX - startX);
       setLeftWidth((newWidth / container.clientWidth) * 100);
+      ThreeManager.getInstance().onWindowResize();
     };
 
     const onMouseUp = () => {
