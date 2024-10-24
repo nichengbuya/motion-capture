@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import Head from 'next/head';
 import * as posenet from '@tensorflow-models/posenet';
 // import * as tf from '@tensorflow/tfjs';
-import styles from '../styles/Home.module.css';
+import styles from '../../styles/home.module.css';
 
 export default function Video() {
   const videoRef = useRef<HTMLVideoElement>(null);
