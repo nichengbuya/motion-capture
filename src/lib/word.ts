@@ -1,5 +1,3 @@
-// lib/ThreeManager.ts
-
 import * as THREE from 'three';
 import { OrbitControls, TransformControls } from 'three/examples/jsm/Addons.js';
 
@@ -10,6 +8,8 @@ class ThreeManager {
   public renderer: THREE.WebGLRenderer;
   private animationFunctions: Array<() => void> = [];
   public transformControls: TransformControls;
+  private container: HTMLElement | null = null;
+
   private constructor() {
     // Initialize the scene, camera, and renderer
     const camera = this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 2000);
@@ -27,16 +27,16 @@ class ThreeManager {
     dirLight.position.set(0, 200, 100);
     dirLight.castShadow = true;
     dirLight.shadow.camera.top = 180;
-    dirLight.shadow.camera.bottom = - 100;
-    dirLight.shadow.camera.left = - 120;
+    dirLight.shadow.camera.bottom = -100;
+    dirLight.shadow.camera.left = -120;
     dirLight.shadow.camera.right = 120;
     scene.add(dirLight);
 
-    // scene.add( new THREE.CameraHelper( dirLight.shadow.camera ) );
+    // scene.add(new THREE.CameraHelper(dirLight.shadow.camera));
 
     // ground
     const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2000, 2000), new THREE.MeshPhongMaterial({ color: 0x999999, depthWrite: false }));
-    mesh.rotation.x = - Math.PI / 2;
+    mesh.rotation.x = -Math.PI / 2;
     mesh.receiveShadow = true;
     scene.add(mesh);
 
@@ -46,32 +46,21 @@ class ThreeManager {
     scene.add(grid);
 
     const renderer = this.renderer = new THREE.WebGLRenderer({ antialias: true });
-
     renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.shadowMap.enabled = true;
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.target.set(0, 100, 0);
     controls.update();
-    const onWindowResize = () => {
-
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-
-      renderer.setSize(window.innerWidth, window.innerHeight);
-
-    }
 
     const control = this.transformControls = new TransformControls(camera, renderer.domElement);
     control.addEventListener('dragging-changed', function (event) {
-
       controls.enabled = !event.value;
-
     });
-    const gizmo = control.getHelper();
-    scene.add(gizmo);
-    window.addEventListener('resize', onWindowResize);
+    scene.add(control.getHelper());
+
+    window.addEventListener('resize', this.onWindowResize);
+
     this.animate = this.animate.bind(this);
   }
 
@@ -82,6 +71,7 @@ class ThreeManager {
 
     return ThreeManager.instance;
   }
+
   public addAnimationFunction(func: () => void) {
     this.animationFunctions.push(func);
   }
@@ -92,14 +82,30 @@ class ThreeManager {
       this.animationFunctions.splice(index, 1);
     }
   }
+
   // Mount the renderer to an external DOM element
   public mountRenderer(domElement: HTMLElement) {
+    this.container = domElement;
     domElement.appendChild(this.renderer.domElement);
+    this.onWindowResize();
   }
 
   // Unmount the renderer from an external DOM element
   public unmountRenderer(domElement: HTMLElement) {
     domElement.removeChild(this.renderer.domElement);
+    this.container = null;
+  }
+
+  private onWindowResize = () => {
+    if (this.container) {
+      const width = this.container.clientWidth;
+      const height = this.container.clientHeight;
+
+      this.camera.aspect = width / height;
+      this.camera.updateProjectionMatrix();
+
+      this.renderer.setSize(width, height);
+    }
   }
 
   public animate() {

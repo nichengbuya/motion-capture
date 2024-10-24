@@ -1,11 +1,9 @@
-// components/ThreeScene.tsx
-
 import React, { useEffect, useRef } from 'react';
 import ThreeManager from '../../../lib/word';
 import loadFBXModel from '@/lib/loader';
 import { useObject3D } from '@/contexts/object3DContext';
 import { SkeletonHelper } from 'three';
-
+import './index.css'
 const ThreeScene: React.FC = () => {
     const { setObject3D } = useObject3D();
     const containerRef = useRef<HTMLDivElement>(null);
@@ -14,7 +12,7 @@ const ThreeScene: React.FC = () => {
         const world = ThreeManager.getInstance();
         world.scene.add(object);
         world.transformControls.attach(object);
-        const skeletonHelper = new SkeletonHelper(object.children[0]);
+        const skeletonHelper = new SkeletonHelper(object);
         world.scene.add(skeletonHelper);
         setObject3D(object);
     }
@@ -37,7 +35,9 @@ const ThreeScene: React.FC = () => {
         };
     }, []);
 
-    return <div ref={containerRef} />;
+    return  <div className="three-scene-container">
+                <div ref={containerRef} className="three-scene-canvas" />
+        </div>;
 };
 
 export default ThreeScene;
