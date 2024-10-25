@@ -4,15 +4,15 @@ import { FC, useEffect, useState } from 'react';
 import { SkinnedMesh, Object3D } from 'three';
 import { CCDIKSolver, CCDIKHelper, IK} from 'three/addons/animation/CCDIKSolver.js';
 
-
+const effectors = [
+    'mixamorigRightHand_target',
+    'mixamorigLeftHand_target',
+    'mixamorigRightFoot_target',
+    'mixamorigLeftFoot_target'
+]
 const IKFC: FC = () => {
     const { object3D } = useObject3D();
-    const effectors = [
-        'mixamorigRightHand_target',
-        'mixamorigLeftHand_target',
-        'mixamorigRightFoot_target',
-        'mixamorigLeftFoot_target'
-    ]
+
     const [id, setId] = useState(effectors[0]);
 
     const handleSelect = (id:string)=>{
@@ -27,6 +27,41 @@ const IKFC: FC = () => {
         if (!object3D) {
             return;
         }
+        const initIK = (object: Object3D): CCDIKSolver => {
+
+            const skinnedMesh = object.children[1] as SkinnedMesh;
+            const bones = skinnedMesh.skeleton.bones;
+            const n = skinnedMesh.skeleton.bones.length;
+            const suffixToRemove = '_target';
+            const iks:IK[] = effectors.map((i,index)=>{
+                const eindex = bones.indexOf(
+                    skinnedMesh.skeleton.getBoneByName(
+                        i.replace(new RegExp(`${suffixToRemove}$`), '')
+                    )!
+                );
+                return {
+                    target:n - 1 - index,
+                    effector: eindex,
+                    links:[
+                        {
+                            index: eindex-1
+                        },
+                        {
+                            index: eindex-2
+                        }
+                    ]
+    
+                }
+            })
+            const ikSolver = new CCDIKSolver(skinnedMesh, iks)
+            const ccdikhelper = new CCDIKHelper(skinnedMesh, iks, 1);
+            const world = ThreeManager.getInstance();
+            world.scene.add(ccdikhelper);
+            const trans = ThreeManager.getInstance().transformControls;
+            trans.setMode('translate');
+            trans.attach(skinnedMesh.skeleton.bones[n-1]);
+            return ikSolver;
+        }
         const solver = initIK(object3D);
         const update = () => {
             if (solver) {
@@ -40,41 +75,7 @@ const IKFC: FC = () => {
             if(helper) world.scene.remove(helper);
         }
     }, [object3D])
-    const initIK = (object: Object3D): CCDIKSolver => {
 
-        const skinnedMesh = object.children[1] as SkinnedMesh;
-        const bones = skinnedMesh.skeleton.bones;
-        const n = skinnedMesh.skeleton.bones.length;
-        const suffixToRemove = '_target';
-        const iks:IK[] = effectors.map((i,index)=>{
-            const eindex = bones.indexOf(
-                skinnedMesh.skeleton.getBoneByName(
-                    i.replace(new RegExp(`${suffixToRemove}$`), '')
-                )!
-            );
-            return {
-                target:n - 1 - index,
-                effector: eindex,
-                links:[
-                    {
-                        index: eindex-1
-                    },
-                    {
-                        index: eindex-2
-                    }
-                ]
-
-            }
-        })
-        const ikSolver = new CCDIKSolver(skinnedMesh, iks)
-        const ccdikhelper = new CCDIKHelper(skinnedMesh, iks, 1);
-        const world = ThreeManager.getInstance();
-        world.scene.add(ccdikhelper);
-        const trans = ThreeManager.getInstance().transformControls;
-        trans.setMode('translate');
-        trans.attach(skinnedMesh.skeleton.bones[n-1]);
-        return ikSolver;
-    }
 
     return (
         <div className="p-4">

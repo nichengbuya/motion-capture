@@ -1,0 +1,17 @@
+.container {
+    position: relative;
+    width: fit-content;
+}
+
+.image {
+    display: block;
+    max-width: 100%;
+}
+
+.canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    /* 使 canvas 不阻止鼠标事件 */
+}

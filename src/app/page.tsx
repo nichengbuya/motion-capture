@@ -1,17 +1,18 @@
 "use client"
 import { useState, useRef, useEffect } from 'react';
 import styles from '../app/styles/home.module.css';
-import Video from './component/video';
 import World from './component/world';
 import Tabs from './component/tab';
 import ControlPanel from './component/control-panel';
 import ThreeManager from '@/lib/word';
+import ImagePose from './component/image-panel';
+import Video from './component/video';
 
 
 export default function Home() {
   const [leftWidth, setLeftWidth] = useState(50);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [activeTab, setActiveTab] = useState('control');
+  const [activeTab, setActiveTab] = useState('video');
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -54,8 +55,11 @@ export default function Home() {
             <Tabs.TabPane tab="Control Panel" key="control">
               <ControlPanel/>
             </Tabs.TabPane>
+            <Tabs.TabPane tab="Image" key="image">
+              <ImagePose />
+            </Tabs.TabPane>
             <Tabs.TabPane tab="Video" key="video">
-              <Video />
+              <Video></Video>
             </Tabs.TabPane>
           </Tabs>
         </div>

@@ -1,76 +1,103 @@
-import { useEffect, useRef, useState } from 'react';
-import Head from 'next/head';
-import * as posenet from '@tensorflow-models/posenet';
-// import * as tf from '@tensorflow/tfjs';
-import styles from '../../styles/home.module.css';
+// 1. Install dependencies DONE
+// 2. Import dependencies DONE
+// 3. Setup webcam and canvas DONE
+// 4. Define references to those DONE
+// 5. Load posenet DONE
+// 6. Detect function DONE
+// 7. Drawing utilities from tensorflow DONE
+// 8. Draw functions DONE
 
-export default function Video() {
-  const videoRef = useRef<HTMLVideoElement>(null);
+import React, { useRef } from "react";
+import * as tf from "@tensorflow/tfjs";
+import * as posenet from "@tensorflow-models/posenet";
+import Webcam from "react-webcam";
+import { drawKeypoints, drawSkeleton } from "@/lib/util";
+
+function App() {
+  const webcamRef = useRef<Webcam>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [poseNetModel, setPoseNetModel] = useState<posenet.PoseNet | null>(null);
 
-  useEffect(() => {
-    // Initialize PoseNet
-    async function initPoseNet() {
-      const net = await posenet.load();
-      setPoseNetModel(net);
+  //  Load posenet
+  const runPosenet = async () => {
+    tf.getBackend();
+    const net = await posenet.load();
+    //
+    setInterval(() => {
+      detect(net);
+    }, 100);
+  };
+
+  const detect = async (net: posenet.PoseNet) => {
+    if (
+      typeof webcamRef.current !== "undefined" &&
+      webcamRef.current !== null &&
+      webcamRef.current.video &&
+      webcamRef.current.video.readyState === 4
+    ) {
+      // Get Video Properties
+      const video = webcamRef.current.video;
+      const videoWidth = webcamRef.current.video.videoWidth;
+      const videoHeight = webcamRef.current.video.videoHeight;
+
+      // Set video width
+      webcamRef.current.video.width = videoWidth;
+      webcamRef.current.video.height = videoHeight;
+
+      // Make Detections
+      const pose = await net.estimateSinglePose(video);
+      console.log(pose);
+
+      drawCanvas(pose, videoWidth, videoHeight, canvasRef);
     }
+  };
 
-    // Set up camera
-    async function setupCamera() {
-      if (!videoRef.current) return;
+  const drawCanvas = (pose:posenet.Pose , videoWidth:number, videoHeight:number, canvas: React.RefObject<HTMLCanvasElement>) => {
+    if(!canvas.current) return;
+    const ctx = canvas.current.getContext("2d")!;
+    canvas.current.width = videoWidth;
+    canvas.current.height = videoHeight;
 
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-      });
-      videoRef.current.srcObject = stream;
-      videoRef.current.play();
-    }
+    drawKeypoints(pose["keypoints"], 0.6, ctx);
+    drawSkeleton(pose["keypoints"], 0.7, ctx);
+  };
 
-    initPoseNet();
-    setupCamera();
-  }, []);
-
-  useEffect(() => {
-    if (!poseNetModel) return;
-
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext('2d');
-    if(!canvas)return;
-    const estimatePose = async () => {
-      if (poseNetModel && video && ctx) {
-        const pose = await poseNetModel.estimateSinglePose(video, {
-          flipHorizontal: true,
-        });
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        pose.keypoints.forEach(keypoint => {
-          if (keypoint.score > 0.5) {
-            const { y, x } = keypoint.position;
-            ctx.beginPath();
-            ctx.arc(x, y, 5, 0, 2 * Math.PI);
-            ctx.fillStyle = 'red';
-            ctx.fill();
-          }
-        });
-      }
-      requestAnimationFrame(estimatePose);
-    };
-
-    estimatePose();
-  }, [poseNetModel]);
+  runPosenet();
 
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>PoseNet with Next.js</title>
-        <meta name="description" content="Real-time Pose Estimation with PoseNet and Next.js" />
-      </Head>
-      <video ref={videoRef} className={styles.video} />
-      <canvas ref={canvasRef} className={styles.canvas} />
+    <div style={{position:'relative'}}>
+      <header className="App-header">
+        <Webcam
+          ref={webcamRef}
+          style={{
+            position: "absolute",
+            marginLeft: "auto",
+            marginRight: "auto",
+            left: 0,
+            right: 0,
+            textAlign: "center",
+            zIndex: 9,
+            width: 640,
+            height: 480,
+          }}
+        />
+
+        <canvas
+          ref={canvasRef}
+          style={{
+            position: "absolute",
+            marginLeft: "auto",
+            marginRight: "auto",
+            left: 0,
+            right: 0,
+            textAlign: "center",
+            zIndex: 9,
+            width: 640,
+            height: 480,
+          }}
+        />
+      </header>
     </div>
   );
 }
+
+export default App;
