@@ -2,6 +2,7 @@ import * as posenet from "@tensorflow-models/posenet";
 import * as tf from "@tensorflow/tfjs";
 
 const color = "aqua";
+const lineColor = 'orange';
 const boundingBoxColor = "red";
 const lineWidth = 2;
 
@@ -77,7 +78,7 @@ export function drawSkeleton(
     drawSegment(
       toTuple(keypoints[0].position),
       toTuple(keypoints[1].position),
-      color,
+      lineColor,
       scale,
       ctx
     );
