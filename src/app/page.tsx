@@ -4,15 +4,16 @@ import styles from '../app/styles/home.module.css';
 import World from './component/world';
 import Tabs from './component/tab';
 import ControlPanel from './component/control-panel';
-import ThreeManager from '@/lib/word';
+import ThreeManager from '@/lib/world';
 import ImagePose from './component/image-panel';
 import Video from './component/video';
+import Mediapipe from './component/mediapipe';
 
 
 export default function Home() {
   const [leftWidth, setLeftWidth] = useState(50);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [activeTab, setActiveTab] = useState('video');
+  const [activeTab, setActiveTab] = useState('pose');
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -60,6 +61,9 @@ export default function Home() {
             </Tabs.TabPane>
             <Tabs.TabPane tab="Video" key="video">
               <Video></Video>
+            </Tabs.TabPane>
+            <Tabs.TabPane tab="Pose" key="pose">
+              <Mediapipe></Mediapipe>
             </Tabs.TabPane>
           </Tabs>
         </div>

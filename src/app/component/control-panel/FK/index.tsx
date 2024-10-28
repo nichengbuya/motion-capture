@@ -1,5 +1,5 @@
 import { useObject3D } from '@/contexts/object3DContext';
-import ThreeManager from '@/lib/word';
+import ThreeManager from '@/lib/world';
 import { FC, useState } from 'react';
 import { SkinnedMesh } from 'three';
 

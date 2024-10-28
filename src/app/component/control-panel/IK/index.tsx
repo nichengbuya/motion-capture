@@ -1,5 +1,5 @@
 import { useObject3D } from '@/contexts/object3DContext';
-import ThreeManager from '@/lib/word';
+import ThreeManager from '@/lib/world';
 import { FC, useEffect, useState } from 'react';
 import { SkinnedMesh, Object3D } from 'three';
 import { CCDIKSolver, CCDIKHelper, IK} from 'three/addons/animation/CCDIKSolver.js';

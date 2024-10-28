@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import Head from 'next/head';
 import * as posenet from '@tensorflow-models/posenet';
 import * as tf from '@tensorflow/tfjs';
-import styles from '../../styles/Home.module.css';
 import videoStyles from './index.module.css';
 import { drawKeypoints, drawSkeleton } from '@/lib/util';
 
@@ -53,11 +51,7 @@ const ImagePose: React.FC = () => {
     drawSkeleton(pose["keypoints"], 0.7, ctx);
   };
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>PoseNet Image Recognition with Next.js</title>
-        <meta name="description" content="Pose estimation on an image using PoseNet and Next.js" />
-      </Head>
+    <div>
       <button onClick={()=>{detect(poseNetModel!)}}>检测</button>
       <div style={{ position: 'relative' }}>
         <img ref={imageRef} src={'/images/pose.jpeg'} className={videoStyles.image} alt="Uploaded" />

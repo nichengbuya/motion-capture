@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import ThreeManager from '../../../lib/word';
+import ThreeManager from '../../../lib/world';
 import loadFBXModel from '@/lib/loader';
 import { useObject3D } from '@/contexts/object3DContext';
 import { Bone, Skeleton, SkeletonHelper, SkinnedMesh, Vector3 } from 'three';
