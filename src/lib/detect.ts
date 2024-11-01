@@ -7,17 +7,18 @@ import { Results, Pose } from '@mediapipe/pose'
 
 const AliyuncsBase =
     'https://openpose-editor.oss-cn-beijing.aliyuncs.com/%40mediapipe/pose'
-const JsdelivrBase = 'https://cdn.jsdelivr.net/npm/@mediapipe/pose'
+// const JsdelivrBase = 'https://cdn.jsdelivr.net/npm/@mediapipe/pose'
 
-let UseJsdelivrBase = true
+// let UseJsdelivrBase = true
 function GetCDNBase() {
-    if (UseJsdelivrBase) return JsdelivrBase
-    else return AliyuncsBase
+    // if (UseJsdelivrBase) return JsdelivrBase
+    // else return AliyuncsBase
+    return AliyuncsBase
 }
 
-export function SetCDNBase(isJsdelivrBase: boolean) {
-    UseJsdelivrBase = isJsdelivrBase
-}
+// export function SetCDNBase(isJsdelivrBase: boolean) {
+//     UseJsdelivrBase = isJsdelivrBase
+// }
 
 const pose = new Pose({
     locateFile: (file:string) => {

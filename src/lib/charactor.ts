@@ -1,32 +1,37 @@
 import { Vector3, Object3D, SkinnedMesh } from 'three';
-import { ControlablePart, ControlPartName, PartIndexMappingOfBlazePoseModel } from './constant';
-
+import { ControlablePart, ControlPartName, getMixamoNameMediapipeNameMap, Mixamo, PartIndexMappingOfBlazePoseModel } from './constant';
+interface HipsBoneJson {
+    x: number;
+    y: number;
+    z: number;
+}
 class Charactor {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     part: Record<ControlPartName, Object3D> = {} as any;
     body: Object3D;
     constructor(object: Object3D) {
         this.body = object;
-        this.body.traverse((o) => {
-            if (ControlablePart.includes(o.name as ControlPartName)) {
-                this.part[o.name as ControlPartName] = o
-            }
-        })
-        // this.part['left_shoulder_inner'] = this.getObjectByName(
-        //     'mixamorigLeftShoulder'
-        // )
-        // this.part['right_shoulder_inner'] = this.getObjectByName(
-        //     'mixamorigRightShoulder'
-        // )
-        // this.part['left_hip_inner'] = this.getObjectByName('left_hip_inner')
-        // this.part['right_hip_inner'] = this.getObjectByName('right_hip_inner')
-        // this.part['five'] = this.getObjectByName('five')
-        // this.part['right_hand'] = this.getObjectByName('mixamorigRightHand')
-        // this.part['left_hand'] = this.getObjectByName('mixamorigLeftHand')
-        // this.part['right_foot'] = this.getObjectByName('mixamorigRightFoot')
-        // this.part['left_foot'] = this.getObjectByName('mixamorigLeftFoot')
+        const map = getMixamoNameMediapipeNameMap();
+        for(const [from , to] of map.entries()){
+            this.part[to as ControlPartName] = this.getObjectByName(`mixamorig${from}`)
+        }
     }
 
+    avgVec3(v1: Vector3, v2: Vector3): Vector3 {
+        const x = (v1.x + v2.x) * 0.5;
+        const y = (v1.y + v2.y) * 0.5;
+        const z = (v1.z + v2.z) * 0.5;
+        return new Vector3(x, y, z);
+    }
+    
+    setHipsPosition(hipsBoneJson: HipsBoneJson, originHips: Vector3, currentHips: Vector3, factor: number): void {
+        const x = (currentHips.x - originHips.x) * factor;
+        const y = (currentHips.y - originHips.y) * factor;
+        const z = (currentHips.z - originHips.z) * factor;
+        hipsBoneJson.x = x;
+        hipsBoneJson.y = -y;  // Note the negation here
+        hipsBoneJson.z = z;
+    }
     getObjectByName(name: string) {
         const part = this.body.getObjectByName(name)
 
@@ -84,36 +89,97 @@ class Charactor {
                 }
             )
         ) as Record<keyof typeof PartIndexMappingOfBlazePoseModel, Vector3>;
-        console.log(data , Object.keys(data) , (this.body.children[1] as SkinnedMesh).skeleton.bones.map(i=>i.name))
-        // const map: [ControlPartName, [Vector3 | keyof typeof PartIndexMappingOfBlazePoseModel, Vector3 | keyof typeof PartIndexMappingOfBlazePoseModel]][] = [
-        //     ['five', [this.getMidpoint(this.getMidpoint(data['left_hip'], data['right_hip']), this.getMidpoint(data['left_shoulder'], data['right_shoulder'])), this.getMidpoint(data['left_shoulder'], data['right_shoulder'])]],
-        //     ['left_shoulder', [this.getMidpoint(data['left_shoulder'], data['right_shoulder']), 'left_shoulder']],
-        //     ['left_elbow', ['left_shoulder', 'left_elbow']],
-        //     ['left_wrist', ['left_elbow', 'left_wrist']],
-        //     ['left_hip', [this.getMidpoint(data['left_shoulder'], data['right_shoulder']), 'left_hip']],
-        //     ['left_knee', ['left_hip', 'left_knee']],
-        //     ['left_ankle', ['left_knee', 'left_ankle']],
-        //     ['right_shoulder', [this.getMidpoint(data['left_shoulder'], data['right_shoulder']), 'right_shoulder']],
-        //     ['right_elbow', ['right_shoulder', 'right_elbow']],
-        //     ['right_wrist', ['right_elbow', 'right_wrist']],
-        //     ['right_hip', [this.getMidpoint(data['left_shoulder'], data['right_shoulder']), 'right_hip']],
-        //     ['right_knee', ['right_hip', 'right_knee']],
-        //     ['right_ankle', ['right_knee', 'right_ankle']],
-        //     ['nose', [this.getMidpoint(data['left_shoulder'], data['right_shoulder']), 'nose']],
-        //     ['left_eye', ['nose', 'left_eye']],
-        //     ['right_eye', ['nose', 'right_eye']],
-        //     ['left_ear', ['left_eye', 'left_ear']],
-        //     ['right_ear', ['right_eye', 'right_ear']],
-        // ];
+        const map: [ControlPartName, [Vector3 | keyof typeof PartIndexMappingOfBlazePoseModel, Vector3 | keyof typeof PartIndexMappingOfBlazePoseModel]][] = [
+            // ['five', [this.getMidpoint(this.getMidpoint(data['left_hip'], data['right_hip']), this.getMidpoint(data['left_shoulder'], data['right_shoulder'])), this.getMidpoint(data['left_shoulder'], data['right_shoulder'])]],
+            // ['left_shoulder', [this.getMidpoint(data['left_shoulder'], data['right_shoulder']), 'left_shoulder']],
+            ['left_elbow', ['left_shoulder', 'left_elbow']],
+            ['left_wrist', ['left_elbow', 'left_wrist']],
+            // ['left_hip', [this.getMidpoint(data['left_shoulder'], data['right_shoulder']), 'left_hip']],
+            ['left_knee', ['left_hip', 'left_knee']],
+            ['left_ankle', ['left_knee', 'left_ankle']],
+            // ['right_shoulder', [this.getMidpoint(data['left_shoulder'], data['right_shoulder']), 'right_shoulder']],
+            ['right_elbow', ['right_shoulder', 'right_elbow']],
+            ['right_wrist', ['right_elbow', 'right_wrist']],
+            // ['right_hip', [this.getMidpoint(data['left_shoulder'], data['right_shoulder']), 'right_hip']],
+            ['right_knee', ['right_hip', 'right_knee']],
+            ['right_ankle', ['right_knee', 'right_ankle']],
+            // ['nose', [this.getMidpoint(data['left_shoulder'], data['right_shoulder']), 'nose']],
+            // ['left_eye', ['nose', 'left_eye']],
+            // ['right_eye', ['nose', 'right_eye']],
+            // ['left_ear', ['left_eye', 'left_ear']],
+            // ['right_ear', ['right_eye', 'right_ear']],
+        ];
 
-        // for (const [name, [from, to]] of map) {
-        //     const fromVec = from instanceof Vector3 ? from : data[from];
-        //     const toVec = to instanceof Vector3 ? to : data[to];
+        for (const [name, [from, to]] of map) {
+            const fromVec = from instanceof Vector3 ? from : data[from];
+            const toVec = to instanceof Vector3 ? to : data[to];
 
-        //     this.rotateTo3(name, fromVec, toVec);
-        //     this.setPositionByDistance(name, fromVec, toVec);
-        // }
+            this.rotateTo3(name, fromVec, toVec);
+            this.setPositionByDistance(name, fromVec, toVec);
+        }
     }
+    setPose2(rawData: [number, number, number][], visibility:number[]) {
+        const data = Object.fromEntries(
+            Object.entries(PartIndexMappingOfBlazePoseModel).map(
+                ([name, index]) => {
+                    return [
+                        name,
+                        new Vector3().fromArray(
+                            rawData[index] ?? [0, 0, 0]
+                        ),
+                    ];
+                }
+            )
+        ) as Record<keyof typeof PartIndexMappingOfBlazePoseModel, Vector3>;
+        const visData = Object.fromEntries(
+            Object.entries(PartIndexMappingOfBlazePoseModel).map(
+                ([name, index]) => {
+                    return [
+                        name,
+                        visibility[index]
+                    ];
+                }
+            )
+        ) as Record<keyof typeof PartIndexMappingOfBlazePoseModel, number>;
+    
+        const glmList:Vector3[] = [];
+        const visibilityList:number[] = [];
+        glmList[Mixamo.Hips] = this.avgVec3(data['left_hip'],data['right_hip']);
+        visibilityList[Mixamo.Hips] = (visData['left_hip'], visData['right_hip']) * 0.5;
+
+        glmList[Mixamo.Hips] = this.avgVec3(data['left_hip'], data['right_hip']);
+        visibilityList[Mixamo.Hips] = (visData['left_hip'] + visData['right_hip']) * 0.5;
+        
+        glmList[Mixamo.Neck] = this.avgVec3(data['left_shoulder'], data['right_shoulder']);
+        visibilityList[Mixamo.Neck] = (visData['left_shoulder'] + visData['right_shoulder']) * 0.5;
+        
+        glmList[Mixamo.Spine1] = this.avgVec3(glmList[Mixamo.Hips], glmList[Mixamo.Neck]);
+        visibilityList[Mixamo.Spine1] = (visibilityList[Mixamo.Hips] + visibilityList[Mixamo.Neck]) * 0.5;
+        
+        glmList[Mixamo.Spine] = this.avgVec3(glmList[Mixamo.Hips], glmList[Mixamo.Spine1]);
+        visibilityList[Mixamo.Spine] = (visibilityList[Mixamo.Hips] + visibilityList[Mixamo.Spine1]) * 0.5;
+        
+        glmList[Mixamo.Spine2] = this.avgVec3(glmList[Mixamo.Spine1], glmList[Mixamo.Neck]);
+        visibilityList[Mixamo.Spine2] = (visibilityList[Mixamo.Spine1] + visibilityList[Mixamo.Neck]) * 0.5;
+        
+        glmList[Mixamo.Head] = this.avgVec3(data['left_ear'], data['right_ear']);
+        visibilityList[Mixamo.Head] = (visData['left_ear'] + visData['right_ear']) * 0.5;
+        
+        // Inverting the y and z coordinates
+        glmList[Mixamo.Spine].y *= -1;
+        glmList[Mixamo.Neck].y *= -1;
+        glmList[Mixamo.Spine1].y *= -1;
+        glmList[Mixamo.Spine2].y *= -1;
+        glmList[Mixamo.Head].y *= -1;
+        
+        glmList[Mixamo.Neck].z *= -1;
+        glmList[Mixamo.Spine].z *= -1;
+        glmList[Mixamo.Spine1].z *= -1;
+        glmList[Mixamo.Spine2].z *= -1;
+        glmList[Mixamo.Head].z *= -1;
+
+    }
+
 }
 
 export default Charactor;
