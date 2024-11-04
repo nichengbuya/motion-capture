@@ -1,5 +1,5 @@
 import { Vector3, Object3D, SkinnedMesh } from 'three';
-import { ControlablePart, ControlPartName, getMixamoNameMediapipeNameMap, Mixamo, PartIndexMappingOfBlazePoseModel } from './constant';
+import { ControlablePart, ControlPartName, getMixamoNameIdxMap, getMixamoNameMediapipeNameMap, Mixamo, PartIndexMappingOfBlazePoseModel } from './constant';
 interface HipsBoneJson {
     x: number;
     y: number;
@@ -91,16 +91,16 @@ class Charactor {
         ) as Record<keyof typeof PartIndexMappingOfBlazePoseModel, Vector3>;
         const map: [ControlPartName, [Vector3 | keyof typeof PartIndexMappingOfBlazePoseModel, Vector3 | keyof typeof PartIndexMappingOfBlazePoseModel]][] = [
             // ['five', [this.getMidpoint(this.getMidpoint(data['left_hip'], data['right_hip']), this.getMidpoint(data['left_shoulder'], data['right_shoulder'])), this.getMidpoint(data['left_shoulder'], data['right_shoulder'])]],
-            // ['left_shoulder', [this.getMidpoint(data['left_shoulder'], data['right_shoulder']), 'left_shoulder']],
+            ['left_shoulder', [this.getMidpoint(data['left_shoulder'], data['right_shoulder']), 'left_shoulder']],
             ['left_elbow', ['left_shoulder', 'left_elbow']],
             ['left_wrist', ['left_elbow', 'left_wrist']],
-            // ['left_hip', [this.getMidpoint(data['left_shoulder'], data['right_shoulder']), 'left_hip']],
+            ['left_hip', [this.getMidpoint(data['left_shoulder'], data['right_shoulder']), 'left_hip']],
             ['left_knee', ['left_hip', 'left_knee']],
             ['left_ankle', ['left_knee', 'left_ankle']],
-            // ['right_shoulder', [this.getMidpoint(data['left_shoulder'], data['right_shoulder']), 'right_shoulder']],
+            ['right_shoulder', [this.getMidpoint(data['left_shoulder'], data['right_shoulder']), 'right_shoulder']],
             ['right_elbow', ['right_shoulder', 'right_elbow']],
             ['right_wrist', ['right_elbow', 'right_wrist']],
-            // ['right_hip', [this.getMidpoint(data['left_shoulder'], data['right_shoulder']), 'right_hip']],
+            ['right_hip', [this.getMidpoint(data['left_shoulder'], data['right_shoulder']), 'right_hip']],
             ['right_knee', ['right_hip', 'right_knee']],
             ['right_ankle', ['right_knee', 'right_ankle']],
             // ['nose', [this.getMidpoint(data['left_shoulder'], data['right_shoulder']), 'nose']],
@@ -177,6 +177,17 @@ class Charactor {
         glmList[Mixamo.Spine1].z *= -1;
         glmList[Mixamo.Spine2].z *= -1;
         glmList[Mixamo.Head].z *= -1;
+        const indexMap = getMixamoNameIdxMap();
+        // for mp_idx in mp_idx_mm_idx_map.keys():
+        // mm_idx = mp_idx_mm_idx_map[mp_idx]
+        // glm_list[mm_idx] = glm.vec3(
+        //     landmark[mp_idx].x, -landmark[mp_idx].y, -landmark[mp_idx].z)
+        // visibility_list[mm_idx] = landmark[mp_idx].visibility
+        for(const [from, to] of indexMap.entries()){
+            glmList[to] = data[from];
+            visibilityList[to] = visData[from];
+        }
+        
 
     }
 
