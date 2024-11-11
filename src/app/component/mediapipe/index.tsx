@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { DetectPosefromImage } from '@/lib/detect';
 import { useObject3D } from '@/contexts/object3DContext';
 import Charactor from '@/app/component/mediapipe/mixoma/charactor';
+import Charactor1 from './mixoma/charactor1';
 
 const ImagePose: React.FC = () => {
   const imageRef = useRef<HTMLImageElement>(null);
@@ -12,7 +13,7 @@ const ImagePose: React.FC = () => {
     if (imageRef.current && object3D) {
       const detect =  async ()=> {
         const result = await DetectPosefromImage(imageRef.current!);
-        const charactor = new Charactor(object3D!);
+        const charactor = new Charactor1(object3D!);
         console.log(result)
         const positions: [number, number, number ][] =
         result.poseWorldLandmarks.map(({ x, y, z }) => [
@@ -23,7 +24,8 @@ const ImagePose: React.FC = () => {
         const visibility:number[] = 
         result.poseWorldLandmarks.map(({ visibility }) => visibility!)
         setTimeout(() => {
-          charactor.setPose3(positions, visibility);
+          // charactor.setPose(positions);
+          charactor.setPose(positions, visibility);
         }, 500);
         
       };

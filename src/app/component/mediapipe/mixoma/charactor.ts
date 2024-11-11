@@ -1,5 +1,5 @@
-import { Vector3, Object3D, SkinnedMesh } from 'three';
-import { ControlablePart, ControlPartName, getMixamoNameIdxMap, getMixamoNameMediapipeNameMap, Mixamo, MixamoType, PartIndexMappingOfBlazePoseModel } from './constant';
+import { Vector3, Object3D, SkinnedMesh, Bone, Quaternion } from 'three';
+import { ControlablePart, ControlPartName, getMixamoNameIdxMap, getMixamoNameMediapipeNameMap, Mixamo, MixamoIndex, PartIndexMappingOfBlazePoseModel } from './constant';
 import MixamoData from './mixamoData';
 interface HipsBoneJson {
     x: number;
@@ -10,13 +10,21 @@ class Charactor {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     part: Record<ControlPartName, Object3D> = {} as any;
     body: Object3D;
+    bones = new Map<Mixamo, Bone>();
     constructor(object: Object3D) {
         this.body = object;
+        console.log(this.body);
+        (this.body.children[1] as SkinnedMesh).skeleton.bones.forEach(child => {
+            if(child instanceof Bone){
+                const key = child.name.replace('mixamorig', '')
+                this.bones.set( MixamoIndex[key], child);
+            }
+        });
         const map = getMixamoNameMediapipeNameMap();
         for (const [from, to] of map.entries()) {
             this.part[to as ControlPartName] = this.getObjectByName(`mixamorig${from}`)
         }
-        this.part['five'] = this.getObjectByName(`mixamorigHips`)
+
     }
 
     avgVec3(v1: Vector3, v2: Vector3): Vector3 {
@@ -115,16 +123,19 @@ class Charactor {
             // ['left_ear', ['left_eye', 'left_ear']],
             // ['right_ear', ['right_eye', 'right_ear']],
         ];
+        console.log(getMixamoNameMediapipeNameMap())
+        console.log(map)
 
         for (const [name, [from, to]] of map) {
             const fromVec = from instanceof Vector3 ? from : data[from];
             const toVec = to instanceof Vector3 ? to : data[to];
-
-            this.rotateTo3(name, fromVec, toVec);
-            this.setPositionByDistance(name, fromVec, toVec);
+            console.log(name ,fromVec, toVec)
+            // this.rotateTo3(name, fromVec, toVec);
+            // this.setPositionByDistance(name, fromVec, toVec);
         }
     }
     setPose2(rawData: [number, number, number][], visibility: number[]) {
+
         const data = Object.fromEntries(
             Object.entries(PartIndexMappingOfBlazePoseModel).map(
                 ([name, index]) => {
@@ -220,9 +231,6 @@ class Charactor {
                 }
             )
         ) as Record<keyof typeof PartIndexMappingOfBlazePoseModel, number>;
-        const indexMap = getMixamoNameIdxMap();
-        const namemap = getMixamoNameMediapipeNameMap();
-        console.log(data, indexMap, namemap)
         // 初始化poseInfo Map
         const poseInfo = new Map<Mixamo, MixamoData>();
 
@@ -394,6 +402,17 @@ class Charactor {
             visData['right_pinky']
         ));
         console.log(poseInfo)
+        for(let [key , value] of poseInfo.entries()){
+            const parent = poseInfo.get(value.parent);
+            console.log(parent)
+            if(!parent){
+                // this.bones.get(key)?.position.copy(value.position);
+                continue;
+            }
+            const from = parent.position;
+            const to = value.position;
+            
+        }
     }
 
 }
