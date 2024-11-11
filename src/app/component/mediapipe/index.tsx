@@ -3,7 +3,7 @@ import { useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { DetectPosefromImage } from '@/lib/detect';
 import { useObject3D } from '@/contexts/object3DContext';
-import Charactor from '@/lib/charactor';
+import Charactor from '@/app/component/mediapipe/mixoma/charactor';
 
 const ImagePose: React.FC = () => {
   const imageRef = useRef<HTMLImageElement>(null);
@@ -23,7 +23,7 @@ const ImagePose: React.FC = () => {
         const visibility:number[] = 
         result.poseWorldLandmarks.map(({ visibility }) => visibility!)
         setTimeout(() => {
-          charactor.setPose2(positions,visibility);
+          charactor.setPose3(positions, visibility);
         }, 500);
         
       };
@@ -34,7 +34,7 @@ const ImagePose: React.FC = () => {
   return (
     <div>
       <div style={{ position: 'relative' }}>
-          <Image ref={imageRef} src={'/images/pose1.jpeg'} width={300} height={200} layout="intrinsic" objectFit="contain" alt="Uploaded" />
+          <Image ref={imageRef} src={'/images/pose.jpeg'} width={300} height={200} layout="intrinsic" objectFit="contain" alt="Uploaded" />
       </div>
     </div>
   );

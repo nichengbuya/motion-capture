@@ -240,31 +240,109 @@ export function getMixamoNameMediapipeNameMap(): Map<string, string> {
     return mixamoNameMediapipeNameMap;
 }
 
-export const Mixamo = Object.freeze({
-    Hips: 0,
-    Spine: 1,
-    Spine1: 2,
-    Spine2: 3,
-    Neck: 4,
-    Head: 5,
-    LeftArm: 6,
-    LeftForeArm: 7,
-    LeftHand: 8,
-    LeftHandThumb1: 9,
-    LeftHandIndex1: 10,
-    LeftHandPinky1: 11,
-    RightArm: 12,
-    RightForeArm: 13,
-    RightHand: 14,
-    RightHandThumb1: 15,
-    RightHandIndex1: 16,
-    RightHandPinky1: 17,
-    LeftUpLeg: 18,
-    LeftLeg: 19,
-    LeftFoot: 20,
-    LeftToeBase: 21,
-    RightUpLeg: 22,
-    RightLeg: 23,
-    RightFoot: 24,
-    RightToeBase: 25
-});
+// export const Mixamo = Object.freeze({
+//     Hips: 0,
+//     Spine: 1,
+//     Spine1: 2,
+//     Spine2: 3,
+//     Neck: 4,
+//     Head: 5,
+//     LeftArm: 6,
+//     LeftForeArm: 7,
+//     LeftHand: 8,
+//     LeftHandThumb1: 9,
+//     LeftHandIndex1: 10,
+//     LeftHandPinky1: 11,
+//     RightArm: 12,
+//     RightForeArm: 13,
+//     RightHand: 14,
+//     RightHandThumb1: 15,
+//     RightHandIndex1: 16,
+//     RightHandPinky1: 17,
+//     LeftUpLeg: 18,
+//     LeftLeg: 19,
+//     LeftFoot: 20,
+//     LeftToeBase: 21,
+//     RightUpLeg: 22,
+//     RightLeg: 23,
+//     RightFoot: 24,
+//     RightToeBase: 25
+// });
+
+export enum Mixamo {
+    Root = -1,
+    Hips,
+    // Spine
+    Spine,
+    Spine1,
+    Spine2,
+    Neck,
+    // HeadTop_End does not exist in Mediapipe
+    Head,
+
+    // Left Arm (LeftShoulder does not exist in Mediapipe)
+    LeftArm,
+    LeftForeArm,
+    LeftHand,
+    LeftHandThumb1,
+    LeftHandIndex1,
+    LeftHandPinky1,
+    // Right Arm (RightShoulder does not exist in Mediapipe)
+    RightArm,
+    RightForeArm,
+    RightHand,
+    RightHandThumb1,
+    RightHandIndex1,
+    RightHandPinky1,
+    
+    // Left Leg (LeftToe_End does not exist in Mediapipe)
+    LeftUpLeg,
+    LeftLeg,
+    LeftFoot,
+    LeftToeBase,
+    // Right Leg (RightToe_End does not exist in Mediapipe)
+    RightUpLeg,
+    RightLeg,
+    RightFoot,
+    RightToeBase,
+
+    // Left Hand 22 + 18 + 18 = 58
+    LeftHandThumb2,
+    LeftHandThumb3,
+    LeftHandThumb4,
+    LeftHandIndex2,
+    LeftHandIndex3,
+    LeftHandIndex4,
+    LeftHandMiddle1,
+    LeftHandMiddle2,
+    LeftHandMiddle3,
+    LeftHandMiddle4,
+    LeftHandRing1,
+    LeftHandRing2,
+    LeftHandRing3,
+    LeftHandRing4,
+    LeftHandPinky2,
+    LeftHandPinky3,
+    LeftHandPinky4,
+
+    // Right Hand
+    RightHandThumb2,
+    RightHandThumb3,
+    RightHandThumb4,
+    RightHandIndex2,
+    RightHandIndex3,
+    RightHandIndex4,
+    RightHandMiddle1,
+    RightHandMiddle2,
+    RightHandMiddle3,
+    RightHandMiddle4,
+    RightHandRing1,
+    RightHandRing2,
+    RightHandRing3,
+    RightHandRing4,
+    RightHandPinky2,
+    RightHandPinky3,
+    RightHandPinky4
+}
+
+// export type MixamoType = keyof typeof Mixamo;
