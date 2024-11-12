@@ -77,78 +77,6 @@ export const ControlablePart = [
 export type ControlPartName = typeof ControlablePart[number];
 
 
-export const mixamoBoneNames = [
-    "mixamorigHips",
-    "mixamorigSpine",
-    "mixamorigSpine1",
-    "mixamorigSpine2",
-    "mixamorigNeck",
-    "mixamorigHead",
-    "mixamorigHeadTop_End",
-    "mixamorigRightShoulder",
-    "mixamorigRightArm",
-    "mixamorigRightForeArm",
-    "mixamorigRightHand",
-    "mixamorigRightHandThumb1",
-    "mixamorigRightHandThumb2",
-    "mixamorigRightHandThumb3",
-    "mixamorigRightHandThumb4",
-    "mixamorigRightHandIndex1",
-    "mixamorigRightHandIndex2",
-    "mixamorigRightHandIndex3",
-    "mixamorigRightHandIndex4",
-    "mixamorigRightHandMiddle1",
-    "mixamorigRightHandMiddle2",
-    "mixamorigRightHandMiddle3",
-    "mixamorigRightHandMiddle4",
-    "mixamorigRightHandRing1",
-    "mixamorigRightHandRing2",
-    "mixamorigRightHandRing3",
-    "mixamorigRightHandRing4",
-    "mixamorigRightHandPinky1",
-    "mixamorigRightHandPinky2",
-    "mixamorigRightHandPinky3",
-    "mixamorigRightHandPinky4",
-    "mixamorigLeftShoulder",
-    "mixamorigLeftArm",
-    "mixamorigLeftForeArm",
-    "mixamorigLeftHand",
-    "mixamorigLeftHandThumb1",
-    "mixamorigLeftHandThumb2",
-    "mixamorigLeftHandThumb3",
-    "mixamorigLeftHandThumb4",
-    "mixamorigLeftHandIndex1",
-    "mixamorigLeftHandIndex2",
-    "mixamorigLeftHandIndex3",
-    "mixamorigLeftHandIndex4",
-    "mixamorigLeftHandMiddle1",
-    "mixamorigLeftHandMiddle2",
-    "mixamorigLeftHandMiddle3",
-    "mixamorigLeftHandMiddle4",
-    "mixamorigLeftHandRing1",
-    "mixamorigLeftHandRing2",
-    "mixamorigLeftHandRing3",
-    "mixamorigLeftHandRing4",
-    "mixamorigLeftHandPinky1",
-    "mixamorigLeftHandPinky2",
-    "mixamorigLeftHandPinky3",
-    "mixamorigLeftHandPinky4",
-    "mixamorigRightUpLeg",
-    "mixamorigRightLeg",
-    "mixamorigRightFoot",
-    "mixamorigRightToeBase",
-    "mixamorigRightToe_End",
-    "mixamorigLeftUpLeg",
-    "mixamorigLeftLeg",
-    "mixamorigLeftFoot",
-    "mixamorigLeftToeBase",
-    "mixamorigLeftToe_End",
-    "mixamorigLeftFoot_target",
-    "mixamorigRightFoot_target",
-    "mixamorigLeftHand_target",
-    "mixamorigRightHand_target"
-]
-
 function getMixamoNames(){
     return [
         ['Hips', 0, -1],  
@@ -239,8 +167,73 @@ export function getMixamoNameMediapipeNameMap(): Map<string, string> {
     }
     return mixamoNameMediapipeNameMap;
 }
+export const mixamoBoneNames = [
+    'mixamorigHips',           // 0
+    'mixamorigSpine',          // 1
+    'mixamorigSpine1',         // 2
+    'mixamorigSpine2',         // 3
+    'mixamorigNeck',           // 4
+    'mixamorigHead',           // 5
+    'mixamorigLeftArm',        // 6
+    'mixamorigLeftForeArm',    // 7
+    'mixamorigLeftHand',       // 8
+    'mixamorigLeftHandThumb1', // 9
+    'mixamorigLeftHandIndex1', // 10
+    'mixamorigLeftHandPinky1', // 11
+    'mixamorigRightArm',       // 12
+    'mixamorigRightForeArm',   // 13
+    'mixamorigRightHand',      // 14
+    'mixamorigRightHandThumb1',// 15
+    'mixamorigRightHandIndex1',// 16
+    'mixamorigRightHandPinky1',// 17
+    'mixamorigLeftUpLeg',      // 18
+    'mixamorigLeftLeg',        // 19
+    'mixamorigLeftFoot',       // 20
+    'mixamorigLeftToeBase',    // 21
+    'mixamorigRightUpLeg',     // 22
+    'mixamorigRightLeg',       // 23
+    'mixamorigRightFoot',      // 24
+    'mixamorigRightToeBase',   // 25
 
-export const MixamoIndex = Object.freeze({
+    'mixamorigLeftHandThumb2', // 26
+    'mixamorigLeftHandThumb3', // 27
+    'mixamorigLeftHandThumb4', // 28
+    'mixamorigLeftHandIndex2', // 29
+    'mixamorigLeftHandIndex3', // 30
+    'mixamorigLeftHandIndex4', // 31
+    'mixamorigLeftHandMiddle1',// 32
+    'mixamorigLeftHandMiddle2',// 33
+    'mixamorigLeftHandMiddle3',// 34
+    'mixamorigLeftHandMiddle4',// 35
+    'mixamorigLeftHandRing1',  // 36
+    'mixamorigLeftHandRing2',  // 37
+    'mixamorigLeftHandRing3',  // 38
+    'mixamorigLeftHandRing4',  // 39
+    'mixamorigLeftHandPinky2', // 40
+    'mixamorigLeftHandPinky3', // 41
+    'mixamorigLeftHandPinky4', // 42
+
+    'mixamorigRightHandThumb2',// 43
+    'mixamorigRightHandThumb3',// 44
+    'mixamorigRightHandThumb4',// 45
+    'mixamorigRightHandIndex2',// 46
+    'mixamorigRightHandIndex3',// 47
+    'mixamorigRightHandIndex4',// 48
+    'mixamorigRightHandMiddle1',// 49
+    'mixamorigRightHandMiddle2',// 50
+    'mixamorigRightHandMiddle3',// 51
+    'mixamorigRightHandMiddle4',// 52
+    'mixamorigRightHandRing1', // 53
+    'mixamorigRightHandRing2', // 54
+    'mixamorigRightHandRing3', // 55
+    'mixamorigRightHandRing4', // 56
+    'mixamorigRightHandPinky2',// 57
+    'mixamorigRightHandPinky3',// 58
+    'mixamorigRightHandPinky4' // 59
+];
+
+
+export const MixamoIndex = {
     Hips: 0,
     Spine: 1,
     Spine1: 2,
@@ -266,9 +259,47 @@ export const MixamoIndex = Object.freeze({
     RightUpLeg: 22,
     RightLeg: 23,
     RightFoot: 24,
-    RightToeBase: 25
-});
+    RightToeBase: 25,
 
+    LeftHandThumb2: 26,
+    LeftHandThumb3: 27,
+    LeftHandThumb4: 28,
+    LeftHandIndex2: 29,
+    LeftHandIndex3: 30,
+    LeftHandIndex4: 31,
+    LeftHandMiddle1: 32,
+    LeftHandMiddle2: 33,
+    LeftHandMiddle3: 34,
+    LeftHandMiddle4: 35,
+    LeftHandRing1: 36,
+    LeftHandRing2: 37,
+    LeftHandRing3: 38,
+    LeftHandRing4: 39,
+    LeftHandPinky2: 40,
+    LeftHandPinky3: 41,
+    LeftHandPinky4: 42,
+
+    RightHandThumb2: 43,
+    RightHandThumb3: 44,
+    RightHandThumb4: 45,
+    RightHandIndex2: 46,
+    RightHandIndex3: 47,
+    RightHandIndex4: 48,
+    RightHandMiddle1: 49,
+    RightHandMiddle2: 50,
+    RightHandMiddle3: 51,
+    RightHandMiddle4: 52,
+    RightHandRing1: 53,
+    RightHandRing2: 54,
+    RightHandRing3: 55,
+    RightHandRing4: 56,
+    RightHandPinky2: 57,
+    RightHandPinky3: 58,
+    RightHandPinky4: 59
+} as const;
+
+
+export type MixamoIndexKeys = keyof typeof MixamoIndex;
 export enum Mixamo {
     Root = -1,
     Hips,

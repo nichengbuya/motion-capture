@@ -1,15 +1,17 @@
 import { Vector3 } from "three";
-import { Mixamo } from "./constant";
+import { Mixamo, mixamoBoneNames } from "./constant";
 
 class MixamoData {
-    name: Mixamo;
+    name: string;
+    self:Mixamo;
     parent: Mixamo;
     position: Vector3;
     visibility: number;
 
     constructor(thisMixamo: Mixamo, parentMixamo: Mixamo, mediapipeLandmark: Vector3, visibility: number) {
-        this.name = thisMixamo;
+        this.self = thisMixamo;
         this.parent = parentMixamo;
+        this.name = mixamoBoneNames[this.self];
         this.position = mediapipeLandmark;
         this.visibility = visibility;
     }

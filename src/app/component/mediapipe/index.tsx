@@ -3,7 +3,7 @@ import { useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { DetectPosefromImage } from '@/lib/detect';
 import { useObject3D } from '@/contexts/object3DContext';
-import Charactor from '@/app/component/mediapipe/mixoma/charactor';
+// import Charactor from '@/app/component/mediapipe/mixoma/charactor';
 import Charactor1 from './mixoma/charactor1';
 
 const ImagePose: React.FC = () => {
@@ -14,7 +14,6 @@ const ImagePose: React.FC = () => {
       const detect =  async ()=> {
         const result = await DetectPosefromImage(imageRef.current!);
         const charactor = new Charactor1(object3D!);
-        console.log(result)
         const positions: [number, number, number ][] =
         result.poseWorldLandmarks.map(({ x, y, z }) => [
             x * 100,
@@ -25,7 +24,7 @@ const ImagePose: React.FC = () => {
         result.poseWorldLandmarks.map(({ visibility }) => visibility!)
         setTimeout(() => {
           // charactor.setPose(positions);
-          charactor.setPose(positions, visibility);
+          charactor.calcAnimation(positions, visibility);
         }, 500);
         
       };
@@ -36,7 +35,7 @@ const ImagePose: React.FC = () => {
   return (
     <div>
       <div style={{ position: 'relative' }}>
-          <Image ref={imageRef} src={'/images/pose.jpeg'} width={300} height={200} layout="intrinsic" objectFit="contain" alt="Uploaded" />
+          <Image ref={imageRef} src={'/images/pose1.jpeg'} width={300} height={200} layout="intrinsic" objectFit="contain" alt="Uploaded" />
       </div>
     </div>
   );
