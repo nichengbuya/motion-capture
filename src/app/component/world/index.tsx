@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import ThreeManager from '../../../lib/world';
 import loadFBXModel from '@/lib/loader';
 import { useObject3D } from '@/contexts/object3DContext';
-import { Bone, Skeleton, SkeletonHelper, SkinnedMesh, Vector3 } from 'three';
+import { ArrowHelper, Bone, Skeleton, SkeletonHelper, SkinnedMesh, Vector3 } from 'three';
 import './index.css'
 const ThreeScene: React.FC = () => {
     const { setObject3D } = useObject3D();
@@ -37,9 +37,30 @@ const ThreeScene: React.FC = () => {
         
         const skeleton = new Skeleton(bones);
         skinnedMesh.bind(skeleton);
+        addCoordinateHelpers();
         setObject3D(object);
     }
+    const addCoordinateHelpers = (size = 10)=> {
+        const scene = ThreeManager.getInstance().scene;
 
+        // 初始化箭头
+        const headLength = 0.2 * size; // 箭头头部的长度
+        const headWidth = 0.2 * size; // 箭头头部的宽度
+
+        // 创建坐标原点
+        const origin = new Vector3(0, 0, 0);
+
+        // X 轴
+        const xAxis = new ArrowHelper(new Vector3(1, 0, 0), origin, size, 0xff0000, headLength, headWidth);
+        // Y 轴
+        const yAxis = new ArrowHelper(new Vector3(0, 1, 0), origin, size, 0x00ff00, headLength, headWidth);
+        // Z 轴
+        const zAxis = new ArrowHelper(new Vector3(0, 0, 1), origin, size, 0x0000ff, headLength, headWidth);
+
+        scene.add(xAxis);
+        scene.add(yAxis);
+        scene.add(zAxis);
+    }    
     useEffect(() => {
         const threeManager = ThreeManager.getInstance();
         const container = containerRef.current;

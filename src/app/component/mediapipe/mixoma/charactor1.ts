@@ -1,4 +1,4 @@
-import { Vector3, Object3D, SkinnedMesh, Bone, Quaternion, Matrix4, Box3 } from 'three';
+import { Vector3, Object3D, SkinnedMesh, Bone, Quaternion, Box3, Matrix4 } from 'three';
 import { Mixamo, MixamoIndex, MixamoIndexKeys, PartIndexMappingOfBlazePoseModel } from './constant';
 import MixamoData from './mixamoData';
 
@@ -6,7 +6,8 @@ class Charactor1 {
     body: Object3D;
     bones = new Map<Mixamo, Bone>();
     poseInfo!: Map<Mixamo, MixamoData>;
-
+    landmarks?: Record<keyof typeof PartIndexMappingOfBlazePoseModel, Vector3>;
+    
     constructor(object: Object3D) {
         this.body = object;
         console.log(this.body);
@@ -81,26 +82,49 @@ class Charactor1 {
         const v1 = new Vector3().subVectors(rightLegLocal, leftLegLocal);
         const v2 = new Vector3().subVectors(spineLocal, rightLegLocal);
         const normalVec = new Vector3().crossVectors(v1, v2).normalize();
-        const tangentVec = rightLegLocal.clone().normalize();
-        const binormalVec = new Vector3().crossVectors(normalVec, tangentVec);
-        const matrix = this.generateMatrix(tangentVec, normalVec, binormalVec);
-        const v = new Vector3();
-        const q = new Quaternion();
-        const t = new Vector3();
-        matrix.decompose(v, q, t)
-        return q;
+        const quaternion = new Quaternion();
+        quaternion.setFromUnitVectors(new Vector3(0, 0, -1), normalVec);
+        return quaternion;
     }
 
-    generateMatrix(tangent: Vector3, normal: Vector3, binormal: Vector3) {
-        // 将向量转换为Vector4，并取反
-        const tan = new Vector3(tangent.x, tangent.y, tangent.z).multiplyScalar(-1);
-        const binorm = new Vector3(binormal.x, binormal.y, binormal.z);
-        const norm = new Vector3(normal.x, normal.y, normal.z).multiplyScalar(-1);
-        // 创建一个新的Matrix4实例
-        const matrix = new Matrix4();
-        // 设置矩阵的列
-        matrix.makeBasis(tan, binorm, norm)
-        return matrix;
+    calculateHeadOrientation(
+        leftEye: Vector3,
+        rightEye: Vector3,
+        leftEar: Vector3,
+        rightEar: Vector3
+    ): Quaternion {
+    
+        // 计算头部的左右向量 (x轴)
+        const xAxis = new Vector3().subVectors(rightEye, leftEye).normalize();
+    
+        // 计算头部的前后向量 (z轴)
+        const earVector = new Vector3().subVectors(rightEar, leftEar).normalize();
+        const zAxis = new Vector3().crossVectors(xAxis, earVector).normalize();
+    
+        // 计算头部的上下向量 (y轴)，这是xAxis和zAxis的叉积
+        const yAxis = new Vector3().crossVectors(zAxis, xAxis).normalize();
+    
+        // 用这些轴向量创建一个旋转矩阵
+        const rotationMatrix = new Matrix4().makeBasis(xAxis.multiplyScalar(-1), yAxis, zAxis.multiplyScalar(-1));
+    
+        // 从旋转矩阵中提取四元数
+
+        const quaternion = new Quaternion().setFromRotationMatrix(rotationMatrix);
+    
+        return quaternion;
+    }
+
+    generateNormal(){
+        const { poseInfo } = this;
+        const leftLegLocal = poseInfo.get(Mixamo.LeftUpLeg)!.position;
+        const rightLegLocal = poseInfo.get(Mixamo.RightUpLeg)!.position;
+        const spineLocal = poseInfo.get(Mixamo.Spine)!.position;
+        const v1 = new Vector3().subVectors(rightLegLocal, leftLegLocal);
+        const v2 = new Vector3().subVectors(spineLocal, rightLegLocal);
+        const normalVec = new Vector3().crossVectors(v1, v2).normalize();
+        const quaternion = new Quaternion();
+        quaternion.setFromUnitVectors(new Vector3(0, 0, -1), normalVec);
+        return quaternion;
     }
 
     setPose( bone:Bone ) {
@@ -111,42 +135,45 @@ class Charactor1 {
             return;
         }
         if(bone.name === poseInfo.get(Mixamo.Spine2)?.name){
-            const neck = poseInfo.get(Mixamo.Neck)!;
-            const spine2 = poseInfo.get(Mixamo.Spine2)!;
-            const sourceVec = spine2.position;
-            const targetVec = neck.position;
-            this.rotateTo3(Mixamo.Spine2 , sourceVec , targetVec);
-            this.setPositionByDistance(spine2.self, sourceVec, targetVec);
+            const neckNode = poseInfo.get(Mixamo.Neck)!;
+            const spine2Node = poseInfo.get(Mixamo.Spine2)!;
+            const unit = this.getDirectionVectorByParentOf( neckNode.self, spine2Node.position , neckNode.position);
+            const v = bone.position.clone().applyQuaternion(bone.quaternion).normalize();
+            const q = new Quaternion().setFromUnitVectors(v,  unit)
+            bone.applyQuaternion(q);
             return;
         }
-        const limbs = [
-            Mixamo.LeftForeArm, 
-            Mixamo.LeftHand,  
-            Mixamo.RightForeArm,
-            Mixamo.RightHand, 
-            Mixamo.LeftLeg, 
-            Mixamo.LeftFoot, 
-            Mixamo.RightLeg, 
-            Mixamo.RightFoot
-        ];
-        const limbsNodeName = limbs.map(i=> poseInfo.get(i)!.name);
-        if( limbsNodeName.indexOf(bone.name) > -1){
-            const node = poseInfo.get(limbs[limbsNodeName.indexOf(bone.name)])!;
-            const parent = poseInfo.get(node?.parent)!;
+
+        if(this.getMixamoDataByName(bone.name)?.self === Mixamo.Head){
+            if(this.landmarks){
+                const q2 = this.calculateHeadOrientation(
+                    this.landmarks['left_eye'],
+                    this.landmarks['right_eye'],
+                    this.landmarks['left_ear'],
+                    this.landmarks['right_ear'],
+                );
+                const q1 = new Quaternion();
+                bone.getWorldQuaternion(q1);
+                const q = q1.clone().conjugate().multiply(q2);
+                bone.quaternion.copy(q);               
+            }
+            return;
+        }
+        const arr = [ Mixamo.Spine1, Mixamo.Hips, Mixamo.LeftHand , Mixamo.RightHand, Mixamo.LeftFoot , Mixamo.RightFoot];
+        
+        const node = this.getMixamoDataByName(bone.name);
+        const parent = poseInfo.get(node?.parent);
+        if( !parent || arr.indexOf(parent!.self) >= 0){
+            return;
+        }
+        if(node && parent){
             const from = parent.position.clone();
             const to = node.position.clone();
-            this.rotateTo3(node.self, from, to);
-            this.setPositionByDistance(node.self, from, to);
+            const unit = this.getDirectionVectorByParentOf(parent.self, from , to);
+            const v = bone.position.clone().applyQuaternion(bone.parent!.quaternion).normalize();
+            const q = new Quaternion().setFromUnitVectors(v,  unit)
+            bone.parent!.applyQuaternion(q);
         }
-
-        // const node = this.getMixamoDataByName(bone.name);
-        // const parent = poseInfo.get(node?.parent);
-        // if(node && parent){
-        //     const from = parent.position.clone();
-        //     const to = node.position.clone();
-        //     this.rotateTo3(node.self, from, to);
-        //     this.setPositionByDistance(node.self, from, to);
-        // }
     }
 
     getMixamoDataByName(name:string){
@@ -155,6 +182,7 @@ class Charactor1 {
         const key = MixamoIndex[name as MixamoIndexKeys];
         return poseInfo.get(key)!;
     }
+
     getPoseInfo(rawData: [number, number, number][], visibility: number[]) {
         const data = Object.fromEntries(
             Object.entries(PartIndexMappingOfBlazePoseModel).map(
@@ -168,7 +196,7 @@ class Charactor1 {
                 }
             )
         ) as Record<keyof typeof PartIndexMappingOfBlazePoseModel, Vector3>;
-    
+        this.landmarks = data;
         const visData = Object.fromEntries(
             Object.entries(PartIndexMappingOfBlazePoseModel).map(
                 ([name, index]) => {
@@ -377,8 +405,8 @@ class Charactor1 {
         this.body.position.y -= offset;
     }
 
-    calcAnimation(rawData: [number, number, number][], visibility: number[],){
-        this.poseInfo = this.getPoseInfo(rawData, visibility);
+    calcAnimation(landmarks: [number, number, number][], visibility: number[],){
+        this.poseInfo = this.getPoseInfo(landmarks, visibility);
         const rootBone = this.body.children[0] as Bone;
         this.normalize(rootBone);
         rootBone.traverse(child=>{

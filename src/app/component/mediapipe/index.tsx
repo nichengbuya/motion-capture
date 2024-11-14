@@ -23,7 +23,6 @@ const ImagePose: React.FC = () => {
         const visibility:number[] = 
         result.poseWorldLandmarks.map(({ visibility }) => visibility!)
         setTimeout(() => {
-          // charactor.setPose(positions);
           charactor.calcAnimation(positions, visibility);
         }, 500);
         
@@ -35,7 +34,7 @@ const ImagePose: React.FC = () => {
   return (
     <div>
       <div style={{ position: 'relative' }}>
-          <Image ref={imageRef} src={'/images/pose1.jpeg'} width={300} height={200} layout="intrinsic" objectFit="contain" alt="Uploaded" />
+          <Image ref={imageRef} src={'/images/pose.jpeg'} width={300} height={200} layout="intrinsic" objectFit="contain" alt="Uploaded" />
       </div>
     </div>
   );
