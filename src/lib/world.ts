@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { ArrowHelper, Group, Vector3 } from 'three';
 import { OrbitControls, TransformControls } from 'three/examples/jsm/Addons.js';
 
 class ThreeManager {
@@ -119,10 +120,10 @@ class ThreeManager {
   public dispose(): void {
     // Remove event listeners
     window.removeEventListener('resize', this.onWindowResize);
-    
+
     // Dispose the TransformControls
     this.transformControls.dispose();
-    
+
     // Dispose all objects in the scene
     this.scene.traverse((object) => {
       if (object instanceof THREE.Mesh) {
@@ -136,14 +137,36 @@ class ThreeManager {
         }
       }
     });
-    
+
     // Dispose the renderer
     this.renderer.dispose();
-    
+
     // If the renderer is mounted to the DOM, unmount it
     if (this.container) {
       this.unmountRenderer(this.container);
     }
+  }
+
+  addCoordinateHelpers(
+    origin = new Vector3(0, 0, 0),
+    x = new Vector3(1, 0, 0),
+    y = new Vector3(0, 1, 0),
+    z = new Vector3(0, 0, 1),
+    size = 10) {
+    // 初始化箭头
+    const headLength = 0.2 * size; // 箭头头部的长度
+    const headWidth = 0.2 * size; // 箭头头部的宽度
+    // X 轴
+    const xAxis = new ArrowHelper(x, origin, size, 0xff0000, headLength, headWidth);
+    // Y 轴
+    const yAxis = new ArrowHelper(y, origin, size, 0x00ff00, headLength, headWidth);
+    // Z 轴
+    const zAxis = new ArrowHelper(z, origin, size, 0x0000ff, headLength, headWidth);
+    const group = new Group();
+    group.add(xAxis);
+    group.add(yAxis);
+    group.add(zAxis);
+    return group;
   }
 }
 

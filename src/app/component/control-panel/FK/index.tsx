@@ -14,6 +14,7 @@ const FK: FC = () => {
         const trans = ThreeManager.getInstance().transformControls;
         const bone = object3D!.getObjectByProperty('uuid', id);
         trans.setMode('rotate');
+        console.log(bone)
         trans.attach(bone!);
     }
 
