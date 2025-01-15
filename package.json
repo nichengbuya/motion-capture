@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@mediapipe/pose": "^0.5.1675469404",
+    "@next/swc-darwin-arm64": "^15.0.3",
     "@tensorflow-models/posenet": "^2.2.2",
     "@tensorflow/tfjs": "^4.22.0",
     "next": "14.2.16",

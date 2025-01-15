@@ -1,7 +1,7 @@
 import { Vector3, Object3D, SkinnedMesh, Bone, Quaternion, Box3, Matrix4 } from 'three';
 import { Mixamo, MixamoIndex, MixamoIndexKeys, PartIndexMappingOfBlazePoseModel } from './constant';
 import MixamoData from './mixamoData';
-import ThreeManager from '@/lib/world';
+// import ThreeManager from '@/lib/world'; 
 
 class Charactor1 {
     body: Object3D;
@@ -95,7 +95,7 @@ class Charactor1 {
         rightEar: Vector3,
 
     ): Quaternion {
-        const world = ThreeManager.getInstance();
+        // const world = ThreeManager.getInstance();
         // 计算头部的左右向量 (x轴)
         // 转换Mediapipe关键点为js向量
         // const nose = new Vector3(landmarks[0].x, landmarks[0].y, landmarks[0].z);
@@ -405,23 +405,25 @@ class Charactor1 {
         return poseInfo;
     }
 
-    normalize(bone: Bone, len = 0) {
-        const node = this.getMixamoDataByName(bone.name)
-        if (node.self === Mixamo.Hips) {
+    normalize(bone: Bone) {
+        // const node = this.getMixamoDataByName(bone.name)
+        // if (node.self === Mixamo.Hips) {
             // bone.position.copy(node.position);
-        } else {
-            if (node && node.visibility > 0) {
-                const unit = bone.position.clone().normalize();
-                bone.position.copy(unit.multiplyScalar(len))
-            }
-        }
+        // } else {
+            // if (node && node.visibility > 0) {
+            //     const unit = bone.position.clone().normalize();
+            //     bone.position.copy(unit.multiplyScalar(len))
+            // }
+        // }
+        bone.quaternion.copy(new Quaternion())
         for (const b of bone.children) {
-            const child = this.getMixamoDataByName(b.name);
-            if (!child) {
-                continue;
-            }
-            const newLen = node.position.distanceTo(child.position);
-            this.normalize(b as Bone, newLen)
+            // const child = this.getMixamoDataByName(b.name);
+            // if (!child) {
+            //     continue;
+            // }
+            // const newLen = node.position.distanceTo(child.position);
+            // this.normalize(b as Bone, newLen)
+            this.normalize(b as Bone);
         }
     }
 
@@ -437,13 +439,14 @@ class Charactor1 {
             bone.position.y = 0;
             bone.position.z = 0;
         }
-        for(let c of bone.children){
+        for(const c of bone.children){
             this.normalizeSpine(c as Bone);
         }
     }
     standFloor() {
         const boundingBox = new Box3().setFromObject(this.body);
         const offset = boundingBox.min.y;
+        this.body.position.y  = 0;
         this.body.position.y -= offset;
     }
 
