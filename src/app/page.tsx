@@ -38,7 +38,7 @@ export default function Home() {
       document.addEventListener('mouseup', onMouseUp);
     };
 
-    container.querySelector(`.${styles.resizer}`)!.addEventListener('mousedown', onMouseDown);
+    (container.querySelector(`.${styles.resizer}`) as HTMLElement).addEventListener('mousedown', onMouseDown);
 
     // Cleanup
     return () => {
