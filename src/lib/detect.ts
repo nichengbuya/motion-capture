@@ -1,5 +1,5 @@
 // https://github.com/google/mediapipe/blob/master/docs/solutions/pose.md#resources
-import { Results, Pose } from '@mediapipe/pose'
+import type { Results, Pose } from '@mediapipe/pose'
 
 // @mediapipe/pose is not an es module ??
 // Extract Pose from the window to solve the problem
@@ -20,24 +20,36 @@ function GetCDNBase() {
 //     UseJsdelivrBase = isJsdelivrBase
 // }
 
-const pose = new Pose({
-    locateFile: (file:string) => {
-        const url = `${GetCDNBase()}/${file}`
-        return url
-    },
-})
+let pose: Pose | null = null
 
-// https://github.com/google/mediapipe/blob/master/docs/solutions/pose.md#solution-apis
-pose.setOptions({
-    modelComplexity: 1,
-    smoothLandmarks: true,
-    enableSegmentation: true,
-    smoothSegmentation: true,
-    minDetectionConfidence: 0.5,
-    minTrackingConfidence: 0.5,
-})
+async function getPose() {
+    if (pose) return pose
 
-export function DetectPosefromImage(image: HTMLImageElement): Promise<Results> {
+    const { Pose } = await import('@mediapipe/pose')
+
+    pose = new Pose({
+        locateFile: (file:string) => {
+            const url = `${GetCDNBase()}/${file}`
+            return url
+        },
+    })
+
+    // https://github.com/google/mediapipe/blob/master/docs/solutions/pose.md#solution-apis
+    pose.setOptions({
+        modelComplexity: 1,
+        smoothLandmarks: true,
+        enableSegmentation: true,
+        smoothSegmentation: true,
+        minDetectionConfidence: 0.5,
+        minTrackingConfidence: 0.5,
+    })
+
+    return pose
+}
+
+export async function DetectPosefromImage(image: HTMLImageElement): Promise<Results> {
+    const pose = await getPose()
+
     return new Promise((resolve, reject) => {
         let isException = false
         const id = setTimeout(() => {
